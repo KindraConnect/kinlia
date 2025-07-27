@@ -36,7 +36,7 @@ export default function EventFeedScreen({ navigation }: Props) {
           description: 'This is a sample event description',
           date: '2024-01-15',
           location: 'Sample Location',
-          created_by: 'user1',
+          organizer_id: '1',
         },
         {
           id: '2',
@@ -44,7 +44,7 @@ export default function EventFeedScreen({ navigation }: Props) {
           description: 'Another sample event description',
           date: '2024-01-20',
           location: 'Another Location',
-          created_by: 'user2',
+          organizer_id: '1',
         },
       ]);
     }
@@ -82,7 +82,10 @@ export default function EventFeedScreen({ navigation }: Props) {
   };
 
   const renderEvent = ({ item }: { item: Event }) => (
-    <View className="bg-white rounded-lg p-4 mb-4 shadow-sm border border-gray-200">
+    <TouchableOpacity
+      onPress={() => navigation.navigate('EventDetail', { eventId: item.id })}
+      className="bg-white rounded-lg p-4 mb-4 shadow-sm border border-gray-200"
+    >
       <Text className="text-xl font-semibold text-gray-800 mb-2">
         {item.title}
       </Text>
@@ -91,7 +94,7 @@ export default function EventFeedScreen({ navigation }: Props) {
         <Text className="text-gray-500 text-sm">{item.date}</Text>
         <Text className="text-gray-500 text-sm">{item.location}</Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 
   return (
@@ -99,12 +102,20 @@ export default function EventFeedScreen({ navigation }: Props) {
       <View className="bg-white px-6 py-4 border-b border-gray-200">
         <View className="flex-row justify-between items-center">
           <Text className="text-2xl font-bold text-gray-800">Events</Text>
-          <TouchableOpacity
-            onPress={handleLogout}
-            className="bg-red-500 px-4 py-2 rounded-lg"
-          >
-            <Text className="text-white font-semibold">Logout</Text>
-          </TouchableOpacity>
+          <View className="flex-row space-x-2">
+            <TouchableOpacity
+              onPress={() => navigation.navigate('OrganizerDashboard')}
+              className="bg-green-600 px-4 py-2 rounded-lg"
+            >
+              <Text className="text-white font-semibold">Organizer</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={handleLogout}
+              className="bg-red-500 px-4 py-2 rounded-lg"
+            >
+              <Text className="text-white font-semibold">Logout</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
 

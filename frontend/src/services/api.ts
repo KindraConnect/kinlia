@@ -1,5 +1,10 @@
 import * as SecureStore from 'expo-secure-store';
-import { AuthResponse, LoginCredentials, SignupCredentials, Event } from '../types';
+import {
+  AuthResponse,
+  LoginCredentials,
+  SignupCredentials,
+  Event,
+} from '../types';
 
 const API_BASE_URL = 'http://localhost:8000';
 
@@ -86,10 +91,35 @@ class ApiService {
     return this.makeRequest<Event[]>('/events');
   }
 
+  async getEvent(id: string): Promise<Event> {
+    return this.makeRequest<Event>(`/events/${id}`);
+  }
+
+  async createEvent(event: Partial<Event>): Promise<Event> {
+    return this.makeRequest<Event>('/events', {
+      method: 'POST',
+      body: JSON.stringify(event),
+    });
+  }
+
+  async getOrganizerEvents(): Promise<(Event & { ticket_sales: number })[]> {
+    return this.makeRequest<(Event & { ticket_sales: number })[]>(
+      '/organizer/events'
+    );
+  }
+
+  async getEventTickets(eventId: string) {
+    return this.makeRequest('/organizer/events/' + eventId + '/tickets');
+  }
+
+  async purchaseTicket(eventId: string) {
+    return this.makeRequest(`/events/${eventId}/tickets`, { method: 'POST' });
+  }
+
   async isAuthenticated(): Promise<boolean> {
     const token = await this.getToken();
     return !!token;
   }
 }
 
-export const apiService = new ApiService(); 
+export const apiService = new ApiService();

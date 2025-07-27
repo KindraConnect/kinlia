@@ -7,6 +7,8 @@ import { apiService } from './src/services/api';
 import LoginScreen from './src/screens/LoginScreen';
 import SignupScreen from './src/screens/SignupScreen';
 import EventFeedScreen from './src/screens/EventFeedScreen';
+import EventDetailScreen from './src/screens/EventDetailScreen';
+import OrganizerDashboardScreen from './src/screens/OrganizerDashboardScreen';
 import LoadingSpinner from './src/components/LoadingSpinner';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -45,6 +47,11 @@ export default function App() {
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Signup" component={SignupScreen} />
         <Stack.Screen name="EventFeed" component={EventFeedScreen} />
+        <Stack.Screen name="EventDetail" component={EventDetailScreen} />
+        <Stack.Screen
+          name="OrganizerDashboard"
+          component={OrganizerDashboardScreen}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -46,6 +46,10 @@ class Event(BaseModel):
         orm_mode = True
 
 
+class EventWithSales(Event):
+    ticket_sales: int
+
+
 class Ticket(BaseModel):
     id: int
     event_id: int
