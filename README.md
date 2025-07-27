@@ -12,3 +12,13 @@ docker-compose up
 ```
 
 The Expo server will be available on [http://localhost:3412](http://localhost:3412) and the FastAPI backend on [http://localhost:8194](http://localhost:8194).
+
+## Database migrations
+
+To create and apply database migrations run:
+
+```bash
+docker-compose exec backend alembic revision --autogenerate -m "<message>"
+docker-compose exec backend alembic upgrade head
+```
+
