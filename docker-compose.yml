@@ -1,0 +1,35 @@
+version: "3.8"
+services:
+  frontend:
+    image: node:18
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+    command: npx expo start --tunnel --port 3412
+    ports:
+      - "3412:3412"
+    depends_on:
+      - backend
+  backend:
+    image: python:3.11
+    working_dir: /app
+    volumes:
+      - ./backend:/app
+    command: bash -c "pip install -r requirements.txt && uvicorn main:app --host 0.0.0.0 --port 8194 --reload"
+    env_file:
+      - .env
+    ports:
+      - "8194:8194"
+    depends_on:
+      - db
+      - redis
+  db:
+    image: postgres:15
+    env_file:
+      - .env
+    volumes:
+      - db-data:/var/lib/postgresql/data
+  redis:
+    image: redis:latest
+volumes:
+  db-data:
