@@ -21,6 +21,12 @@ export interface SignupCredentials {
   username: string;
 }
 
+export interface SimpleSignupData {
+  first_name: string;
+  last_name: string;
+  phone: string;
+}
+
 export interface Event {
   id: string;
   title: string;
@@ -33,6 +39,7 @@ export interface Event {
 export type RootStackParamList = {
   Login: undefined;
   Signup: undefined;
+  SimpleSignup: undefined;
   EventFeed: undefined;
   EventDetail: { eventId: string };
   OrganizerDashboard: undefined;

@@ -1,9 +1,11 @@
 from datetime import datetime
 from pydantic import BaseModel, EmailStr
 
+
 class UserCreate(BaseModel):
     email: EmailStr
     password: str
+
 
 class UserRead(BaseModel):
     id: int
@@ -58,3 +60,15 @@ class Ticket(BaseModel):
     class Config:
         orm_mode = True
 
+
+class SignupCreate(BaseModel):
+    first_name: str
+    last_name: str
+    phone: str
+
+
+class SignupRead(SignupCreate):
+    id: int
+
+    class Config:
+        orm_mode = True
