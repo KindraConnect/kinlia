@@ -22,3 +22,11 @@ docker-compose exec backend alembic revision --autogenerate -m "<message>"
 docker-compose exec backend alembic upgrade head
 ```
 
+## Background worker
+
+Matching jobs are processed by an RQ worker. Start it with Docker:
+
+```bash
+docker-compose up worker
+```
+

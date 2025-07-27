@@ -4,7 +4,7 @@ from sqlalchemy import func
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 
-from . import models, schemas, auth, database
+from . import models, schemas, auth, database, tasks
 
 models.Base.metadata.create_all(bind=database.engine)
 
@@ -111,6 +111,8 @@ def create_event(event: schemas.EventCreate, organizer: models.Organizer = Depen
     db.add(event_obj)
     db.commit()
     db.refresh(event_obj)
+    # Enqueue background matching task
+    tasks.enqueue_match_event(event_obj.id)
     return event_obj
 
 

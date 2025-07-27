@@ -4,3 +4,5 @@ sqlalchemy
 alembic
 python-jose[cryptography]
 passlib[bcrypt]
+redis
+rq
