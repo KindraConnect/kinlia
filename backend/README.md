@@ -11,3 +11,11 @@ To create a new migration and apply it, run:
 docker-compose exec backend alembic revision --autogenerate -m "<message>"
 docker-compose exec backend alembic upgrade head
 ```
+
+## Running the worker
+
+Background tasks are processed using RQ. Start the worker with:
+
+```bash
+docker-compose up worker
+```
