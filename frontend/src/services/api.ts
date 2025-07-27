@@ -1,46 +1,47 @@
-import * as SecureStore from 'expo-secure-store';
+import * as SecureStore from "expo-secure-store";
 import {
   AuthResponse,
   LoginCredentials,
   SignupCredentials,
   Event,
-} from '../types';
+  SimpleSignupData,
+} from "../types";
 
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = "http://localhost:8000";
 
 class ApiService {
   private async getToken(): Promise<string | null> {
     try {
-      return await SecureStore.getItemAsync('jwt_token');
+      return await SecureStore.getItemAsync("jwt_token");
     } catch (error) {
-      console.error('Error getting token:', error);
+      console.error("Error getting token:", error);
       return null;
     }
   }
 
   private async setToken(token: string): Promise<void> {
     try {
-      await SecureStore.setItemAsync('jwt_token', token);
+      await SecureStore.setItemAsync("jwt_token", token);
     } catch (error) {
-      console.error('Error setting token:', error);
+      console.error("Error setting token:", error);
     }
   }
 
   private async removeToken(): Promise<void> {
     try {
-      await SecureStore.deleteItemAsync('jwt_token');
+      await SecureStore.deleteItemAsync("jwt_token");
     } catch (error) {
-      console.error('Error removing token:', error);
+      console.error("Error removing token:", error);
     }
   }
 
   private async makeRequest<T>(
     endpoint: string,
-    options: RequestInit = {}
+    options: RequestInit = {},
   ): Promise<T> {
     const token = await this.getToken();
     const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
       ...(options.headers as Record<string, string>),
     };
 
@@ -64,21 +65,21 @@ class ApiService {
   }
 
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
-    const response = await this.makeRequest<AuthResponse>('/auth/login', {
-      method: 'POST',
+    const response = await this.makeRequest<AuthResponse>("/auth/login", {
+      method: "POST",
       body: JSON.stringify(credentials),
     });
-    
+
     await this.setToken(response.access_token);
     return response;
   }
 
   async signup(credentials: SignupCredentials): Promise<AuthResponse> {
-    const response = await this.makeRequest<AuthResponse>('/auth/signup', {
-      method: 'POST',
+    const response = await this.makeRequest<AuthResponse>("/auth/signup", {
+      method: "POST",
       body: JSON.stringify(credentials),
     });
-    
+
     await this.setToken(response.access_token);
     return response;
   }
@@ -88,7 +89,7 @@ class ApiService {
   }
 
   async getEvents(): Promise<Event[]> {
-    return this.makeRequest<Event[]>('/events');
+    return this.makeRequest<Event[]>("/events");
   }
 
   async getEvent(id: string): Promise<Event> {
@@ -96,24 +97,31 @@ class ApiService {
   }
 
   async createEvent(event: Partial<Event>): Promise<Event> {
-    return this.makeRequest<Event>('/events', {
-      method: 'POST',
+    return this.makeRequest<Event>("/events", {
+      method: "POST",
       body: JSON.stringify(event),
     });
   }
 
   async getOrganizerEvents(): Promise<(Event & { ticket_sales: number })[]> {
     return this.makeRequest<(Event & { ticket_sales: number })[]>(
-      '/organizer/events'
+      "/organizer/events",
     );
   }
 
   async getEventTickets(eventId: string) {
-    return this.makeRequest('/organizer/events/' + eventId + '/tickets');
+    return this.makeRequest("/organizer/events/" + eventId + "/tickets");
   }
 
   async purchaseTicket(eventId: string) {
-    return this.makeRequest(`/events/${eventId}/tickets`, { method: 'POST' });
+    return this.makeRequest(`/events/${eventId}/tickets`, { method: "POST" });
+  }
+
+  async simpleSignup(data: SimpleSignupData): Promise<void> {
+    await this.makeRequest("/signup", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
   }
 
   async isAuthenticated(): Promise<boolean> {

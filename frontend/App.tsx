@@ -1,15 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { StatusBar } from 'expo-status-bar';
-import { RootStackParamList } from './src/types';
-import { apiService } from './src/services/api';
-import LoginScreen from './src/screens/LoginScreen';
-import SignupScreen from './src/screens/SignupScreen';
-import EventFeedScreen from './src/screens/EventFeedScreen';
-import EventDetailScreen from './src/screens/EventDetailScreen';
-import OrganizerDashboardScreen from './src/screens/OrganizerDashboardScreen';
-import LoadingSpinner from './src/components/LoadingSpinner';
+import React, { useEffect, useState } from "react";
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { StatusBar } from "expo-status-bar";
+import { RootStackParamList } from "./src/types";
+import { apiService } from "./src/services/api";
+import LoginScreen from "./src/screens/LoginScreen";
+import SignupScreen from "./src/screens/SignupScreen";
+import SimpleSignupScreen from "./src/screens/SimpleSignupScreen";
+import EventFeedScreen from "./src/screens/EventFeedScreen";
+import EventDetailScreen from "./src/screens/EventDetailScreen";
+import OrganizerDashboardScreen from "./src/screens/OrganizerDashboardScreen";
+import LoadingSpinner from "./src/components/LoadingSpinner";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -25,7 +26,7 @@ export default function App() {
       const authenticated = await apiService.isAuthenticated();
       setIsAuthenticated(authenticated);
     } catch (error) {
-      console.error('Error checking auth status:', error);
+      console.error("Error checking auth status:", error);
       setIsAuthenticated(false);
     }
   };
@@ -39,13 +40,14 @@ export default function App() {
     <NavigationContainer>
       <StatusBar style="auto" />
       <Stack.Navigator
-        initialRouteName={isAuthenticated ? 'EventFeed' : 'Login'}
+        initialRouteName={isAuthenticated ? "EventFeed" : "Login"}
         screenOptions={{
           headerShown: false,
         }}
       >
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Signup" component={SignupScreen} />
+        <Stack.Screen name="SimpleSignup" component={SimpleSignupScreen} />
         <Stack.Screen name="EventFeed" component={EventFeedScreen} />
         <Stack.Screen name="EventDetail" component={EventDetailScreen} />
         <Stack.Screen
