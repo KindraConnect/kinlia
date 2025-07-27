@@ -30,3 +30,19 @@ Matching jobs are processed by an RQ worker. Start it with Docker:
 docker-compose up worker
 ```
 
+
+## Makefile
+
+Common commands are available via the Makefile:
+
+```bash
+make dev      # start all services
+make migrate  # apply migrations
+```
+
+## Continuous Integration
+
+A GitHub Actions workflow (`.github/workflows/ci.yml`) runs on every push and
+pull request. It installs dependencies, lints and tests the backend, and builds
+both Docker images to ensure they succeed.
+
