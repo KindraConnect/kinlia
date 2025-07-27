@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -90,6 +91,14 @@ def get_events(current_user: models.User = Depends(get_current_user), db: Sessio
     return db.query(models.Event).all()
 
 
+@app.get("/events/{event_id}", response_model=schemas.Event)
+def get_event(event_id: int, current_user: models.User = Depends(get_current_user), db: Session = Depends(database.get_db)):
+    event = db.query(models.Event).get(event_id)
+    if not event:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Event not found")
+    return event
+
+
 @app.post("/events", response_model=schemas.Event)
 def create_event(event: schemas.EventCreate, organizer: models.Organizer = Depends(get_current_organizer), db: Session = Depends(database.get_db)):
     event_obj = models.Event(
@@ -103,6 +112,32 @@ def create_event(event: schemas.EventCreate, organizer: models.Organizer = Depen
     db.commit()
     db.refresh(event_obj)
     return event_obj
+
+
+@app.get("/organizer/events", response_model=list[schemas.EventWithSales])
+def get_organizer_events(organizer: models.Organizer = Depends(get_current_organizer), db: Session = Depends(database.get_db)):
+    events = db.query(models.Event).filter(models.Event.organizer_id == organizer.id).all()
+    results = []
+    for event in events:
+        sales = db.query(func.count(models.Ticket.id)).filter(models.Ticket.event_id == event.id).scalar()
+        results.append({
+            "id": event.id,
+            "title": event.title,
+            "description": event.description,
+            "date": event.date,
+            "location": event.location,
+            "organizer_id": event.organizer_id,
+            "ticket_sales": sales or 0
+        })
+    return results
+
+
+@app.get("/organizer/events/{event_id}/tickets", response_model=list[schemas.Ticket])
+def get_event_tickets(event_id: int, organizer: models.Organizer = Depends(get_current_organizer), db: Session = Depends(database.get_db)):
+    event = db.query(models.Event).filter(models.Event.id == event_id, models.Event.organizer_id == organizer.id).first()
+    if not event:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Event not found")
+    return db.query(models.Ticket).filter(models.Ticket.event_id == event_id).all()
 
 
 @app.post("/events/{event_id}/tickets", response_model=schemas.Ticket)

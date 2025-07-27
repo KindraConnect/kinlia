@@ -27,11 +27,13 @@ export interface Event {
   description: string;
   date: string;
   location: string;
-  created_by: string;
+  organizer_id: string;
 }
 
 export type RootStackParamList = {
   Login: undefined;
   Signup: undefined;
   EventFeed: undefined;
-}; 
+  EventDetail: { eventId: string };
+  OrganizerDashboard: undefined;
+};
