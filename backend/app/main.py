@@ -4,7 +4,7 @@ from sqlalchemy import func
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 
-from . import models, schemas, auth, database, tasks
+from . import models, schemas, auth, database, tasks, matching
 
 models.Base.metadata.create_all(bind=database.engine)
 
@@ -152,4 +152,20 @@ def purchase_ticket(event_id: int, current_user: models.User = Depends(get_curre
     db.commit()
     db.refresh(ticket)
     return ticket
+
+
+@app.post("/match/{event_id}")
+def match_event(event_id: int, current_user: models.User = Depends(get_current_user), db: Session = Depends(database.get_db)):
+    """Generate embeddings and store them in Pinecone."""
+    event = db.query(models.Event).get(event_id)
+    if not event:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Event not found")
+
+    user_emb = matching.generate_user_embedding(current_user)
+    event_emb = matching.generate_event_embedding(event)
+
+    matching.store_user_embedding(current_user.id, user_emb)
+    matching.store_event_embedding(event.id, event_emb)
+
+    return {"detail": "Embeddings stored"}
 
