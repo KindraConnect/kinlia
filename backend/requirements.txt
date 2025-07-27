@@ -6,4 +6,8 @@ python-jose[cryptography]
 passlib[bcrypt]
 redis
 rq
-pinecone-client
+pinecone
+flake8
+pytest
+email-validator
+python-multipart
