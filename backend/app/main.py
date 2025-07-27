@@ -20,6 +20,24 @@ app.add_middleware(
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
+
+def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(database.get_db)):
+    payload = auth.decode_access_token(token)
+    if payload is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+    user_id = int(payload.get("sub"))
+    user = db.query(models.User).get(user_id)
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    return user
+
+
+def get_current_organizer(current_user: models.User = Depends(get_current_user), db: Session = Depends(database.get_db)):
+    organizer = db.query(models.Organizer).filter(models.Organizer.user_id == current_user.id).first()
+    if not organizer:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Organizer access required")
+    return organizer
+
 @app.post("/auth/signup", response_model=schemas.AuthResponse)
 def signup(user: schemas.UserCreate, db: Session = Depends(database.get_db)):
     existing = db.query(models.User).filter(models.User.email == user.email).first()
@@ -64,35 +82,37 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
     }
 
 @app.get("/me", response_model=schemas.UserRead)
-def read_users_me(token: str = Depends(oauth2_scheme), db: Session = Depends(database.get_db)):
-    payload = auth.decode_access_token(token)
-    if payload is None:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
-    user_id = int(payload.get("sub"))
-    user = db.query(models.User).get(user_id)
-    if user is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-    return user
+def read_users_me(current_user: models.User = Depends(get_current_user)):
+    return current_user
 
 @app.get("/events", response_model=list[schemas.Event])
-def get_events(token: str = Depends(oauth2_scheme), db: Session = Depends(database.get_db)):
-    # For now, return sample events
-    # TODO: Implement actual event fetching from database
-    return [
-        {
-            "id": "1",
-            "title": "Sample Event 1",
-            "description": "This is a sample event description",
-            "date": "2024-01-15",
-            "location": "Sample Location",
-            "created_by": "user1"
-        },
-        {
-            "id": "2", 
-            "title": "Sample Event 2",
-            "description": "Another sample event description",
-            "date": "2024-01-20",
-            "location": "Another Location",
-            "created_by": "user2"
-        }
-    ]
+def get_events(current_user: models.User = Depends(get_current_user), db: Session = Depends(database.get_db)):
+    return db.query(models.Event).all()
+
+
+@app.post("/events", response_model=schemas.Event)
+def create_event(event: schemas.EventCreate, organizer: models.Organizer = Depends(get_current_organizer), db: Session = Depends(database.get_db)):
+    event_obj = models.Event(
+        title=event.title,
+        description=event.description,
+        date=event.date,
+        location=event.location,
+        organizer_id=organizer.id,
+    )
+    db.add(event_obj)
+    db.commit()
+    db.refresh(event_obj)
+    return event_obj
+
+
+@app.post("/events/{event_id}/tickets", response_model=schemas.Ticket)
+def purchase_ticket(event_id: int, current_user: models.User = Depends(get_current_user), db: Session = Depends(database.get_db)):
+    event = db.query(models.Event).get(event_id)
+    if not event:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Event not found")
+    ticket = models.Ticket(event_id=event_id, user_id=current_user.id)
+    db.add(ticket)
+    db.commit()
+    db.refresh(ticket)
+    return ticket
+
