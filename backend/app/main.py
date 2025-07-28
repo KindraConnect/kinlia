@@ -1,3 +1,5 @@
+"""Main FastAPI application with API endpoints."""
+
 from fastapi import FastAPI, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from sqlalchemy import func
@@ -25,6 +27,8 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 def get_current_user(
     token: str = Depends(oauth2_scheme), db: Session = Depends(database.get_db)
 ):
+    """Return the authenticated user based on the provided JWT token."""
+
     payload = auth.decode_access_token(token)
     if payload is None:
         raise HTTPException(
@@ -43,6 +47,8 @@ def get_current_organizer(
     current_user: models.User = Depends(get_current_user),
     db: Session = Depends(database.get_db),
 ):
+    """Ensure the current user is an organizer and return the organizer record."""
+
     organizer = (
         db.query(models.Organizer)
         .filter(models.Organizer.user_id == current_user.id)
@@ -57,6 +63,7 @@ def get_current_organizer(
 
 @app.post("/auth/signup", response_model=schemas.AuthResponse)
 def signup(user: schemas.UserCreate, db: Session = Depends(database.get_db)):
+    """Register a new user and return an access token."""
     existing = db.query(models.User).filter(models.User.email == user.email).first()
     if existing:
         raise HTTPException(
@@ -89,6 +96,7 @@ def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(database.get_db),
 ):
+    """Authenticate a user and return a JWT access token."""
     user = db.query(models.User).filter(models.User.email == form_data.username).first()
     if not user or not auth.verify_password(form_data.password, user.password_hash):
         raise HTTPException(
@@ -106,6 +114,7 @@ def login(
 
 @app.get("/me", response_model=schemas.UserRead)
 def read_users_me(current_user: models.User = Depends(get_current_user)):
+    """Return information about the current authenticated user."""
     return current_user
 
 
@@ -114,6 +123,7 @@ def get_events(
     current_user: models.User = Depends(get_current_user),
     db: Session = Depends(database.get_db),
 ):
+    """List all events."""
     return db.query(models.Event).all()
 
 
@@ -123,6 +133,7 @@ def get_event(
     current_user: models.User = Depends(get_current_user),
     db: Session = Depends(database.get_db),
 ):
+    """Retrieve details for a single event."""
     event = db.query(models.Event).get(event_id)
     if not event:
         raise HTTPException(
@@ -137,6 +148,7 @@ def create_event(
     organizer: models.Organizer = Depends(get_current_organizer),
     db: Session = Depends(database.get_db),
 ):
+    """Create a new event owned by the authenticated organizer."""
     event_obj = models.Event(
         title=event.title,
         description=event.description,
@@ -157,6 +169,7 @@ def get_organizer_events(
     organizer: models.Organizer = Depends(get_current_organizer),
     db: Session = Depends(database.get_db),
 ):
+    """Return all events created by the current organizer with ticket sales."""
     events = (
         db.query(models.Event).filter(models.Event.organizer_id == organizer.id).all()
     )
@@ -187,6 +200,7 @@ def get_event_tickets(
     organizer: models.Organizer = Depends(get_current_organizer),
     db: Session = Depends(database.get_db),
 ):
+    """List tickets sold for a specific event."""
     event = (
         db.query(models.Event)
         .filter(models.Event.id == event_id, models.Event.organizer_id == organizer.id)
@@ -205,6 +219,7 @@ def purchase_ticket(
     current_user: models.User = Depends(get_current_user),
     db: Session = Depends(database.get_db),
 ):
+    """Purchase a ticket for an event."""
     event = db.query(models.Event).get(event_id)
     if not event:
         raise HTTPException(
@@ -219,6 +234,7 @@ def purchase_ticket(
 
 @app.post("/signup", response_model=schemas.SignupRead)
 def create_signup(info: schemas.SignupCreate, db: Session = Depends(database.get_db)):
+    """Store a simple signup record."""
     signup = models.Signup(
         first_name=info.first_name, last_name=info.last_name, phone=info.phone
     )
@@ -234,7 +250,7 @@ def match_event(
     current_user: models.User = Depends(get_current_user),
     db: Session = Depends(database.get_db),
 ):
-    """Generate embeddings and store them in Pinecone."""
+    """Generate embeddings for a user and event and store them in Pinecone."""
     event = db.query(models.Event).get(event_id)
     if not event:
         raise HTTPException(

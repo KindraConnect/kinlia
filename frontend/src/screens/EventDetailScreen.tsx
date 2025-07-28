@@ -1,3 +1,4 @@
+// Shows details for a single event
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, Alert } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -13,6 +14,7 @@ export default function EventDetailScreen({ route, navigation }: NativeStackScre
     load();
   }, []);
 
+  // Load event details from the backend
   const load = async () => {
     try {
       const data = await apiService.getEvent(eventId);
@@ -22,6 +24,7 @@ export default function EventDetailScreen({ route, navigation }: NativeStackScre
     }
   };
 
+  // Purchase a ticket for this event
   const purchase = async () => {
     setLoading(true);
     try {

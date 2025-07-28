@@ -1,3 +1,5 @@
+"""Background job definitions using RQ."""
+
 import os
 from redis import Redis
 from rq import Queue

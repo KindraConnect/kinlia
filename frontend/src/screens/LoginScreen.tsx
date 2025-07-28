@@ -1,3 +1,4 @@
+// Screen that allows a user to log in to the application
 import React, { useState } from 'react';
 import {
   View,
@@ -23,6 +24,7 @@ export default function LoginScreen({ navigation }: Props) {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // Authenticate the user and navigate to the event feed
   const handleLogin = async () => {
     if (!email || !password) {
       Alert.alert('Error', 'Please fill in all fields');

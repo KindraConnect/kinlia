@@ -1,3 +1,4 @@
+// Minimal signup form used as an example
 import React, { useState } from "react";
 import {
   View,
@@ -26,6 +27,7 @@ export default function SimpleSignupScreen({ navigation }: Props) {
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Submit the signup form data to the backend
   const handleSubmit = async () => {
     if (!firstName || !lastName || !phone) {
       Alert.alert("Error", "Please fill in all fields");
