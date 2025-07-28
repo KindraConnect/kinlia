@@ -1,3 +1,5 @@
+"""Utilities for generating and storing recommendation embeddings."""
+
 from typing import List
 
 from . import models

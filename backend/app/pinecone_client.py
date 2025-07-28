@@ -1,3 +1,5 @@
+"""Small helper for accessing the Pinecone vector index."""
+
 import os
 import pinecone
 

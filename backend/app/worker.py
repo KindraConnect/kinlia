@@ -1,3 +1,5 @@
+"""Entry point for running the RQ background worker."""
+
 import os
 from redis import Redis
 from rq import Worker, Queue

@@ -1,3 +1,4 @@
+// Dashboard for organizers to manage their events
 import React, { useEffect, useState } from 'react';
 import {
   View,
@@ -19,6 +20,7 @@ export default function OrganizerDashboardScreen({ navigation }: NativeStackScre
   const [location, setLocation] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // Load the organizer's existing events
   const load = async () => {
     try {
       const data = await apiService.getOrganizerEvents();
@@ -32,6 +34,7 @@ export default function OrganizerDashboardScreen({ navigation }: NativeStackScre
     load();
   }, []);
 
+  // Create a new event using the form values
   const create = async () => {
     if (!title || !description || !date || !location) {
       Alert.alert('Error', 'Please fill in all fields');

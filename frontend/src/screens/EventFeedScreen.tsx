@@ -1,3 +1,4 @@
+// Displays a list of events for the signed in user
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -22,6 +23,7 @@ export default function EventFeedScreen({ navigation }: Props) {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
+  // Fetch the list of events from the backend
   const loadEvents = async () => {
     try {
       const eventsData = await apiService.getEvents();
@@ -54,12 +56,14 @@ export default function EventFeedScreen({ navigation }: Props) {
     loadEvents();
   }, []);
 
+  // Pull to refresh handler
   const onRefresh = async () => {
     setRefreshing(true);
     await loadEvents();
     setRefreshing(false);
   };
 
+  // Log out the user and clear credentials
   const handleLogout = async () => {
     Alert.alert(
       'Logout',

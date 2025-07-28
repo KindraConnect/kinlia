@@ -1,3 +1,4 @@
+// Root application component that sets up navigation and auth state
 import React, { useEffect, useState } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -21,6 +22,7 @@ export default function App() {
     checkAuthStatus();
   }, []);
 
+  // Determine whether a token is present and update auth state
   const checkAuthStatus = async () => {
     try {
       const authenticated = await apiService.isAuthenticated();

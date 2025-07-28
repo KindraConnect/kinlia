@@ -1,3 +1,4 @@
+// Screen for creating a new user account
 import React, { useState } from 'react';
 import {
   View,
@@ -25,6 +26,7 @@ export default function SignupScreen({ navigation }: Props) {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // Create a user account then navigate to the event feed
   const handleSignup = async () => {
     if (!username || !email || !password || !confirmPassword) {
       Alert.alert('Error', 'Please fill in all fields');
